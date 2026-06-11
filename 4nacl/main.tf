@@ -7,12 +7,12 @@ resource "aws_network_acl" "public_nacl1" {
     #edit rules as needed
    # subnet_ids = [var.public_subnet] # Associate with the subnet
 
-  # Inbound rule: Allow all traffic from within the VPC CIDR (rule 100)
+  # Inbound rule: Allow SSH from anywhere (rule 100)
   ingress {
     rule_no    = 100
     action     = "allow"
     protocol   = "tcp"
-    cidr_block = var.vpc_cidr_block #if you want to allow from VPC only
+    cidr_block = "0.0.0.0/0" #allow SSH from anywhere
     from_port  = 22
     to_port    = 22
   }

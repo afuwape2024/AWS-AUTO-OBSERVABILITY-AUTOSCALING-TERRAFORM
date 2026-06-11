@@ -45,6 +45,17 @@ module "security_group" {
   vpc_cidr_block = var.cidr_block
 }
 
+module "iam_prometheus" {
+  source = "./9iam_prometheus"
+  tier2_vpc = module.network.tier2_vpc
+  vpc_cidr_block = var.cidr_block
+  public_subnet = module.network.public_subnet1
+  public_subnet2 = module.network.public_subnet2
+  private_subnet = module.network.private_subnet1
+  private_subnet2 = module.network.private_subnet2
+  ig_tier2 = module.internet_gateway.ig_tier2
+}
+
 module "template_autoscaling" {
   source = "./7template_autoscaling"
   tier2_vpc = module.network.tier2_vpc
@@ -54,4 +65,19 @@ module "template_autoscaling" {
   private_subnet = module.network.private_subnet1
   private_subnet2 = module.network.private_subnet2
   tier2_public_sg = module.security_group.tier2_public_sg
+  key_pair_name = var.key_pair_name
+  iam_instance_profile_name = module.iam_prometheus.prometheus_instance_profile
+}
+
+module "obs_instance" {
+  source = "./obs_instance"
+  tier2_vpc = module.network.tier2_vpc
+  vpc_cidr_block = var.cidr_block
+  public_subnet = module.network.public_subnet1
+  tier2_public_sg = module.security_group.tier2_public_sg
+  prometheus_sg = module.security_group.prometheus_sg
+  grafana_sg = module.security_group.grafana_sg
+  key_pair_name = var.key_pair_name
+  iam_instance_profile_name = module.iam_prometheus.prometheus_instance_profile
+  mandatory_tags = local.mandatory_tags
 }

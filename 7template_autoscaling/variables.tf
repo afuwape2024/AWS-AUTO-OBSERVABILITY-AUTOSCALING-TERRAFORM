@@ -26,3 +26,13 @@ variable "public_sb" {
   type = list(string)
   default = [ "public_subnet_1", "public_subnet_2" ]
 }
+variable "key_pair_name" {
+  description = "Existing EC2 key pair name to attach to instances"
+  type        = string
+  default     = null
+}
+
+variable "iam_instance_profile_name" {
+  description = "IAM instance profile name for EC2 instances launched by the template"
+  type        = string
+}

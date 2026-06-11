@@ -32,6 +32,12 @@ variable "aws_availability_zone_2" {
   description = "Second availability zone"
 }
 
+variable "key_pair_name" {
+  description = "Existing EC2 key pair name for SSH access"
+  type        = string
+  default     = null
+}
+
 
 
 # variable "ig_tier2" {}

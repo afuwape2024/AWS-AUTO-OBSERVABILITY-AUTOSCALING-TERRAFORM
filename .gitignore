@@ -9,3 +9,7 @@ crash.log
 *.tfstate.backup
 .terraform.tfstate
 .terraform.tfstate.backup
+.access_code.sh
+.keypair.pem
+keypair.pem
+.DS_Store

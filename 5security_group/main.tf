@@ -12,11 +12,21 @@ resource "aws_security_group" "tier2_public_sg" {
 resource "aws_vpc_security_group_ingress_rule" "http_access" {
   security_group_id = aws_security_group.tier2_public_sg.id
   cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 80
-  to_port           = 80
+  from_port         = 8080
+  to_port           = 8080
   ip_protocol       = "tcp"
   description       = "Allow HTTP from the internet"
 }
+# ingress rule for node exporter (9100) from anywhere on the internet
+resource "aws_vpc_security_group_ingress_rule" "node_exporter_access" {
+  security_group_id = aws_security_group.tier2_public_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 9100
+  to_port           = 9100
+  ip_protocol       = "tcp"
+  description       = "Allow Node Exporter from the internet"
+}
+
 # Ingress rule for HTTPS (https 443) from outside the VPC CIDR
 resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   security_group_id = aws_security_group.tier2_public_sg.id
@@ -39,8 +49,6 @@ resource "aws_vpc_security_group_ingress_rule" "ssh_access" {
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   security_group_id = aws_security_group.tier2_public_sg.id
   cidr_ipv4         = "0.0.0.0/0"
-  from_port         = 0
-  to_port           = 0
   ip_protocol       = "-1"
   description       = "Allow all outbound traffic"
 }
@@ -74,3 +82,102 @@ resource "aws_vpc_security_group_ingress_rule" "ssh_access_private" {
 #   ip_protocol       = "tcp"
 #   to_port           = 443
 # }
+#$=========================================================================
+#$=========================================================================
+#$=========================================================================
+
+resource "aws_security_group" "prometheus_sg" {
+  name        = "prometheus-security-group"
+  description = "Security group for Prometheus server"
+  vpc_id      = var.tier2_vpc
+
+  # Prometheus UI
+  ingress {
+    description = "Prometheus Web UI"
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+
+    # Restrict to your office/VPN IP in production
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Grafana Web UI"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Node Exporter"
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # SSH Access (Optional)
+  ingress {
+    description = "SSH Access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+
+    # Replace with your IP
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "prometheus-sg"
+  }
+}
+
+#$=========================================================================
+#$=========================================================================
+resource "aws_security_group" "grafana_sg" {
+  name        = "grafana-sg"
+  description = "Security Group for Grafana"
+  vpc_id      = var.tier2_vpc
+
+  ingress {
+    description = "Grafana Web UI"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+
+    # Replace with your public IP for security
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH Access"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+
+    # Restrict to your trusted CIDR in production
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "grafana-sg"
+  }
+}
