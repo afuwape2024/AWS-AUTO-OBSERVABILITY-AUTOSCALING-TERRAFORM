@@ -1,131 +1,92 @@
-# AWS-AUTO-OBSERVABILITY-AUTOSCALING-TERRAFORM
 # AWS Observability & Auto Scaling Platform
 
-## Overview
+## Project Overview
 
-This project demonstrates the implementation of a cloud-native observability platform on AWS using Terraform, Prometheus, Grafana, EC2 Auto Scaling Groups, Launch Templates, IAM Roles, and Node Exporter.
+In this project, I built a fully automated monitoring and observability solution on AWS using Terraform, Prometheus, Grafana, and EC2 Auto Scaling Groups.
 
-The solution automatically provisions infrastructure, deploys monitoring agents, and dynamically discovers EC2 instances using Prometheus EC2 Service Discovery. Newly launched Auto Scaling instances are automatically monitored without requiring manual Prometheus configuration updates.
+The goal was to create a platform where newly launched EC2 instances are automatically discovered, monitored, and visualized without requiring any manual configuration changes. By combining Infrastructure as Code (Terraform) with Prometheus EC2 Service Discovery, the monitoring environment scales alongside the infrastructure.
+
+## What I Built
+
+* Provisioned AWS infrastructure using Terraform
+* Created Launch Templates and Auto Scaling Groups for dynamic EC2 deployment
+* Configured Prometheus to collect infrastructure metrics
+* Installed Node Exporter automatically through EC2 User Data scripts
+* Implemented EC2 Service Discovery using IAM roles and AWS APIs
+* Built Grafana dashboards for real-time infrastructure monitoring
+* Configured Security Groups and IAM policies following AWS security best practices
+* Enabled automatic monitoring of newly launched instances through EC2 tags
 
 ## Architecture
 
 ```text
-Internet
-    |
-Grafana (Port 3000)
-    |
-Prometheus (Port 9090)
-    |
-EC2 Service Discovery (IAM Role)
-    |
-    +----> EC2 Instance 1 (Node Exporter :9100) Auto-scale
+Grafana
+   |
+   v
+Prometheus
+   |
+   v
+AWS EC2 Service Discovery
+   |
+   +--> EC2 Instance (Node Exporter) Auto scale
 ```
 <img width="1122" height="232" alt="image" src="https://github.com/user-attachments/assets/80d35039-466c-4ed9-bdf2-9ebdb67ba055" />
 
+## How It Works
 
-## Key Features
+Prometheus uses AWS EC2 Service Discovery to identify instances tagged with:
 
-* Infrastructure provisioning using Terraform
-* AWS Launch Templates and Auto Scaling Groups
-* Prometheus metrics collection and monitoring
-* Grafana dashboards and visualization
-* Node Exporter deployment through EC2 User Data
-* IAM-based EC2 Service Discovery
-* Dynamic target registration using EC2 tags
-* Secure Security Group configuration
-* Automated scaling and monitoring integration
-* Cloud-native observability architecture
+Monitor=true
+
+When an Auto Scaling Group launches a new EC2 instance:
+
+1. Node Exporter is installed automatically during boot.
+2. The instance receives the monitoring tag.
+3. Prometheus discovers the instance through AWS APIs.
+4. Metrics are automatically scraped on port 9100.
+5. Grafana dashboards update with the new server metrics.
+
+No manual updates to Prometheus configuration are required.
 
 ## Technologies Used
 
 * AWS EC2
-* AWS Auto Scaling Groups
-* AWS IAM
+* Auto Scaling Groups
+* Launch Templates
+* IAM Roles & Policies
 * Terraform
 * Prometheus
 * Grafana
 * Node Exporter
 * Linux (Ubuntu)
 * Bash Scripting
+* PromQL
 
-## Terraform Components
-
-### Networking
-
-* VPC
-* Public Subnets
-* Internet Gateway
-* Route Tables
-* Security Groups
-
-### Compute
-
-* EC2 Instances
-* Launch Templates
-* Auto Scaling Groups
-
-### Monitoring
-
-* Prometheus Server
-* Grafana Server
-* Node Exporter
+## Monitoring Capabilities
   <img width="1142" height="394" alt="image" src="https://github.com/user-attachments/assets/07aa34c9-638d-4d2e-b308-3d57bf7c66f2" />
-
-
-### Identity & Access Management
-
-* IAM Role
-* IAM Policy
-* IAM Instance Profile
-
-## Automatic EC2 Discovery
-
-Prometheus leverages AWS EC2 Service Discovery to automatically discover instances tagged with:
-
-```text
-Monitor=true
-```
-
-As new instances are launched through the Auto Scaling Group, Prometheus automatically begins scraping metrics without requiring any manual updates to `prometheus.yml`.
-<img width="387" height="482" alt="image" src="https://github.com/user-attachments/assets/59c6db03-b247-4f5b-a241-f3194cc8b7da" />
-
-
-## Monitoring Metrics
-
 The platform provides visibility into:
 
-* CPU Utilization
-* Memory Usage
-* Disk Utilization
-* Network Throughput
-* System Load
-* Filesystem Capacity
-* Instance Availability
-* Auto Scaling Infrastructure Health
+* CPU utilization
+* Memory usage
+* Disk utilization
+* Network traffic
+* System uptime
+* Load averages
+* Auto Scaling infrastructure health
 
-## Grafana Dashboards
+## Key Lessons Learned
 
-The following dashboard is configured:
+This project helped strengthen my understanding of:
 
-* Node Exporter Full (Dashboard ID: 1860)
+* Infrastructure as Code (IaC)
+* AWS networking and security
+* IAM role-based access
+* Prometheus service discovery
+* Grafana dashboard management
+* Auto Scaling operations
+* Observability and monitoring best practices
+<img width="387" height="482" alt="image" src="https://github.com/user-attachments/assets/59c6db03-b247-4f5b-a241-f3194cc8b7da" />
 
-Visualizations include:
+## Results
 
-* CPU Usage
-* Memory Utilization
-* Disk Performance
-* Network Traffic
-* System Uptime
-* Resource Consumption Trends
-
-## Security
-
-* SSH access restricted through Security Groups
-* Prometheus exposed on port 9090
-* Grafana exposed on port 3000
-* Node Exporter restricted to Prometheus access
-* IAM least-privilege permissions for EC2 discovery
-
-## Outcome
-
-Successfully implemented a fully automated AWS observability platform where newly provisioned Auto Scaling instances are automatically discovered, monitored, and visualized through Prometheus and Grafana with no manual intervention.
+Successfully deployed a scalable AWS monitoring platform where infrastructure can grow automatically while remaining fully observable. New EC2 instances are discovered and monitored without any manual intervention, providing a production-style observability workflow similar to what is used in modern cloud environments.
