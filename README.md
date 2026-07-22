@@ -21,13 +21,10 @@ The goal was to create a platform where newly launched EC2 instances are automat
 
 ```text
 Grafana
-   |
    v
 Prometheus
-   |
    v
 AWS EC2 Service Discovery
-   |
    +--> EC2 Instance (Node Exporter) Auto scale
 ```
 <img width="1122" height="232" alt="image" src="https://github.com/user-attachments/assets/80d35039-466c-4ed9-bdf2-9ebdb67ba055" />
